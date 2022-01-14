@@ -1,0 +1,86 @@
+.container {
+    width: 60%;
+    margin: 30px auto;
+  }
+
+
+.head{
+  height: 7vh;
+  background: #ff6c9d;
+  color: #fff;
+ font-size: 1.6rem;
+ font-weight: bold;
+ text-align: center;
+ 
+}
+
+/* チャットの表示領域はスクロール可能にする */
+   .outputarea {
+    height: 80vh;
+    background: #faafc8;
+    overflow: scroll
+
+  }
+
+/* メッセージの入力部分は高さを10vhにして、テキストエリアとボタンをflexで横並びにする*/
+  .messagearea {
+    height: 10vh;
+    display: flex;
+   }
+
+
+   .textarea {
+    width: 80%;
+    height: 100%;
+    resize: none; /* これでユーザーのリサイズをできなくする */
+    border: 1px solid rgb(236, 229, 229); /* 枠線をつけて領域を分かりやすく */
+    box-sizing: border-box; /* borderを付けてるので、border込の大きさにする */
+   }
+
+
+   .send {
+width: 20%;
+ height: 100%;
+ background: #ff6c9d;;
+ color: #fff;
+ font-size: 2.0rem;
+ font-weight: bold;
+ border: 0;
+   }
+
+
+
+   .balloon4 {
+     width: 70%;
+    position: relative;
+    margin: 2em 0 2em 40px;
+    padding: 15px;
+    background: #fae4f5;
+    border-radius: 30px;
+  }
+  
+  .balloon4:before {  
+    content: "";
+    position: absolute;
+    left: -38px;
+    width: 13px;
+    height: 12px;
+    bottom: 0;
+    background: #fae4f5;
+    border-radius: 50%;
+  }
+  
+  .balloon4:after {
+    content: "";
+    position: absolute;
+    left: -24px;
+    width: 20px;
+    height: 18px;
+    bottom: 3px;
+    background: #fae4f5;
+    border-radius: 50%;
+  }
+  .balloon4 p {
+    margin: 0; 
+    padding: 0;
+  }
