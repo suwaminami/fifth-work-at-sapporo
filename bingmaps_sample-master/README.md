@@ -1,1 +1,0 @@
-bingmaps_sample
