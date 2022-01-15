@@ -53,7 +53,10 @@
   // Initialize Firebase
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app); // データベースへの接続
+
   const dbRef = ref(db,"line"); // どのデータベースを参照するか
+  let utdb;//ユーザーテーブル
+  
 
   $("#send").on("click", function(){
     const msg = {

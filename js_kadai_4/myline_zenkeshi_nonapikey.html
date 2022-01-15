@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="utf-8">
+    <title>ほんきのLINE</title>
+    <link rel="stylesheet" href="css/main1.css" type="text/css" media="all">
+</head>
+
+<body>
+    <!-- 自分選択 -->
+    <div class="myid">
+        あなたの なまえを えらんでください。
+        <form name="form1">
+            <label for="gfarther" class="form-label"><input type="radio" name="sel-myid" value="おじいちゃん"><img src="img/gf.png" id ="sel-icon">おじいちゃん</label><br>
+            <label for="gmother" class="form-label"><input type="radio" name="sel-myid" value="おばあちゃん"><img src="img/gm.png" id ="sel-icon">おばあちゃん</label><br>
+            <label for="farther" class="form-label"><input type="radio" name="sel-myid" value="おとうさん"><img src="img/farther.png" id ="sel-icon">おとうさん</label><br>
+            <label for="mother" class="form-label"><input type="radio" name="sel-myid" Value="おかあさん"><img src="img/mother.png" id ="sel-icon">おかあさん</label><br>
+            <label for="old" class="form-label"><input type="radio" name="sel-myid" value="ゆい"><img src="img/bs.png" id ="sel-icon">ゆい</label><br>
+            <label for="young" class="form-label"><input type="radio" name="sel-myid" Value="すず"><img src="img/ls.png" id ="sel-icon">すず</label>
+        </form>
+        <button id="select-ok1">けってい</button>
+    </div>
+
+    <!-- 相手選択 -->
+    <div class="toid">
+        メッセージをおくる あいての なまえを えらんでください。
+        <form name="form1">
+            <label for="gfarther" class="form-label"><input type="radio" name="sel-toid" value="おじいちゃん"><img src="img/gf.png" id ="sel-icon">おじいちゃん</label><br>
+            <label for="gmother" class="form-label"><input type="radio" name="sel-toid" value="おばあちゃん"><img src="img/gm.png" id ="sel-icon">おばあちゃん</label><br>
+            <label for="farther" class="form-label"><input type="radio" name="sel-toid" value="おとうさん"><img src="img/farther.png" id ="sel-icon">おとうさん</label><br>
+            <label for="mother" class="form-label"><input type="radio" name="sel-toid" Value="おかあさん"><img src="img/mother.png" id ="sel-icon">おかあさん</label><br>
+            <label for="old" class="form-label"><input type="radio" name="sel-toid" value="ゆい"><img src="img/bs.png" id ="sel-icon">ゆい</label><br>
+            <label for="young" class="form-label"><input type="radio" name="sel-toid" Value="すず"><img src="img/ls.png" id ="sel-icon">すず</label>
+        </form>
+        <button id="select-ok2">けってい</button>
+    </div>
+
+    <div class="message-main">
+        <!-- Header -->
+        <!-- 相手 -->
+        <div class="message-header" id="ms"></div>
+
+        <!-- Message -->
+        <div class="message-change" id="change">
+            <div id="output"></div>
+        </div>
+
+
+        <!-- Input -->
+        <!-- コンテンツ表示画面 -->
+        <div class="message-input">
+            <!-- <div> 名前：<input type="text" id="uname"> </div> -->
+            <div class="input-header" id="is"></div>
+            <div class="send-area">
+                <textarea id="text" cols="33" rows="4"></textarea>
+                <button id="send">送信</button>
+            </div>
+            
+        </div>
+        <!--/ コンテンツ表示画面 -->
+    </div>
+
+    
+
+
+
+    <!-- JQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <!-- JQuery -->
+
+
+    <!--** 以下Firebase **-->
+    <script type="module">
+
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { getDatabase, ref, push, set, onChildAdded, remove, onChildRemoved } 
+        from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            // ★★★　消してます　★★★★
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app); //データベースへの接続
+
+        let utdb;//ユーザーテーブル
+        let dbRef;
+
+
+        //ラジオボタンの取得 MyId
+        let elements1 = document.getElementsByName('sel-myid');
+        let len1 = elements1.length;
+        let myid_val = '';
+        
+        $("#select-ok1").on("click", function(){
+            for (let i = 0; i < len1; i++){
+                if (elements1.item(i).checked){
+                    myid_val = elements1.item(i).value;
+                }
+            }
+            //console.log(myid_val);
+
+            $(".myid").css("display","none");
+            $('.toid').fadeIn(1000);
+        })
+        //ラジオボタン終了
+
+        //ラジオボタンの取得 ToId
+        let elements2 = document.getElementsByName('sel-toid');
+        let len2 = elements2.length;
+        let toid_val = '';
+
+        
+        let aite_h; //Headerの表示に使う変数
+        let aite;
+        let jibun;
+
+        let table_no;
+
+        
+        $("#select-ok2").on("click", function(){
+            for (let i = 0; i < len2; i++){
+                if (elements2.item(i).checked){
+                    toid_val = elements2.item(i).value;
+                }
+            }
+            //console.log(toid_val);
+            if(myid_val == toid_val){
+                alert("「じぶん」と「あいて」がおなじだよ。");
+            }
+            else{
+                $(".toid").css("display","none");
+                $('.message-main').fadeIn(1000);
+
+
+                // // 「おじいちゃん」と「すず」だけのバージョン　アイコン選択
+                // if(toid_val == "おじいちゃん"){
+                //     aite_h = '<img src="img/gf.png" alt="おじいちゃん" id = "face_head">';
+                //     aite = '<img src="img/gf.png" alt="おじいちゃん" id = "face">';
+                //     jibun = '<img src="img/ls.png" alt="すず" id = "face">';
+                // }
+                // else if(toid_val == "すず"){
+                //     aite_h = '<img src="img/ls.png" alt="すず" id = "face_head">';
+                //     aite = '<img src="img/ls.png" alt="すず" id = "face">';
+                //     jibun = '<img src="img/gf.png" alt="おじいちゃん" id = "face">';
+                // }
+
+
+                //人増やしたときの動作１ アイコン選択
+                // 相手のアイコン設定
+                let aite_img = ICONselect(toid_val);
+                aite_h = '<img ' + aite_img + ' id = "face_head">';
+                aite = '<img ' + aite_img + ' id = "face">';
+
+                // 自分のアイコン設定
+                let jibun_img = ICONselect(myid_val);
+                jibun = '<img ' + jibun_img + ' id = "face">';
+
+                // メッセージヘッダ
+                aite_h += "<p id = 'send-message'>あいて：" + toid_val + "</p>";
+                $("#ms").append(aite_h);
+                $("#is").append(aite_h);
+
+                //Usertableの作成
+
+                // //「おじいちゃん」と「すず」だけのバージョンのテーブル設定
+                // const ut = {
+                //     myid: myid_val,
+                //     toid: toid_val,
+                //     tblno: "tbl-1"
+                // }
+
+                //人増やしたときの動作２ テーブル設定
+                const myid_no = IDselect(myid_val);
+                const toid_no = IDselect(toid_val);
+                let tbl_val = "";
+                let db_no = "";
+
+                if (myid_no < toid_no){
+                    tbl_val = "tbl-" + myid_no + toid_no;
+                }
+                else if(myid_no > toid_no){
+                    tbl_val = "tbl-" + toid_no + myid_no;
+                }
+                db_no = "uid-" + myid_no + toid_no + "-" + toid_no + myid_no;
+                
+                const ut = {
+                    myid: myid_val,
+                    toid: toid_val,
+                    tblno: tbl_val
+                }
+
+                //const newPostRef = push(utdb);
+                utdb = ref(db, "user_table/" + db_no);
+                set(utdb, ut);
+
+                //console.log(ut.tblno);
+                dbRef = ref(db, ut.tblno); //chat用データベースを使うか指定
+                table_no = ut.tblno;
+                //Usertableの設定終了
+            }
+            
+            
+            //Outputの設定
+            onChildAdded(dbRef, function(data){
+                const msg = data.val();//データ取ってくるときの記載方法
+                const key = data.key;
+
+                console.log(key);
+                
+                //自分のメッセージの場合
+                if(msg.myid == myid_val){
+                    //console.log(myid_val);
+                    let moji_c = 0;
+                    let moji = msg.text;
+                    //console.log(moji);
+                    moji_c = moji.length;
+                    //console.log(moji_c);
+                    let h;
+
+                    if (moji_c > 12){
+                        // 文字が長い場合は左寄せ ＆ 時間を独立させる
+                        //console.log("左寄せ");
+                        h = '<p id="message-time-my-long">';
+                        h += msg.time;
+                        h += '</p><br><p id="my-text-long">';
+                        h += msg.text;
+                        h += '</p>';
+                        h += jibun;
+                    }
+                    else{
+                        // 文字が短い場合は右寄せ
+                        //console.log("右寄せ");
+                        h = '<p id="my-message"><span id="message-time-my">';
+                        h += msg.time;
+                        h += '</span><br><span id="my-text">';
+                        h += msg.text;
+                        h += '</span></p>';
+                        h += jibun;
+                    }
+                    //console.log(h);
+                    $("#output").append(h); //#outputの最後に追加
+                }
+
+                //相手からのメッセージの場合
+                else if(msg.myid == toid_val){
+                    //console.log(toid_val);
+                    let moji_c = 0;
+                    let moji = msg.text;
+                    //console.log(moji);
+                    moji_c = moji.length;
+                    //console.log(moji_c);
+                    let h;
+                    if (moji_c > 12){
+                        // 時間を独立させる
+                        h = '<p id="message-time-to-long">';
+                        h += msg.time;
+                        h += '</p><br>'
+                        h += aite;
+                        h += '<p id="to-text-long">';
+                        h += msg.text;
+                        h += '</p>';
+                    }
+
+                    else{
+                        h = aite;
+                        h += '<p id="to-message"><span id="message-time">';
+                        h += msg.time;
+                        h += '</span><br><span id="to-text">';
+                        h += msg.text;
+                        h += '</span></p>';
+                    }
+
+                    //console.log(h);
+                    $("#output").append(h); //#outputの最後に追加
+                }
+
+                // //一番下までスクロール
+                let el = document.getElementById('change');
+                el.scrollTop = el.scrollHeight;
+
+            });
+
+            onChildRemoved(dbRef, function(data){
+                $("#output").remove();
+            });
+
+        })
+        //ラジオボタン終了
+
+
+
+        //全消し
+        $('#output').on('click', function () {
+            console.log(dbRef);
+            console.log(ref(db, table_no));
+            remove(ref(db, table_no));
+        });
+
+
+        //送信
+        $("#send").on("click", function(){
+            // 送信メッセージ作成関数へ
+            send_message();
+        });
+
+        //Enter押したら送信する仕組み
+        $("#text").on("keydown", function(event){
+            //console.log(event);
+
+            //追記したところ
+            //console.log(event.keyCode);
+            if(event.keyCode === 13){
+                // 送信メッセージ作成関数へ
+                send_message();
+            }
+        });
+
+        // 選択した人に応じてIDを割り振る関数
+        function IDselect(id){
+            let id_no;
+            switch(id){
+                case "おじいちゃん":
+                    id_no = 1;
+                    break;
+                case "おばあちゃん":
+                    id_no = 2;
+                    break;
+                case "おとうさん":
+                    id_no = 3;
+                    break;
+                case "おかあさん":
+                    id_no = 4;
+                    break;
+                case "ゆい":
+                    id_no = 5;
+                    break;
+                case "すず":
+                    id_no = 6;
+                    break;
+            }
+            return(id_no);
+        }
+
+        // 選択した人に応じてaアイコンを割り当てる関数
+        function ICONselect(id){
+            let icon_text;
+            switch(id){
+                case "おじいちゃん":
+                    icon_text = 'src="img/gf.png" alt="おじいちゃん"';
+                    break;
+                case "おばあちゃん":
+                    icon_text = 'src="img/gm.png" alt="おばあちゃん"';
+                    break;
+                case "おとうさん":
+                    icon_text = 'src="img/farther.png" alt="おとうさん"';
+                    break;
+                case "おかあさん":
+                    icon_text = 'src="img/mother.png" alt="おかあさん"';
+                    break;
+                case "ゆい":
+                    icon_text = 'src="img/bs.png" alt="ゆい"';
+                    break;
+                case "すず":
+                    icon_text = 'src="img/ls.png" alt="すず"';
+                    break;
+            }
+            return(icon_text);
+        }
+
+        // 送信データ形成
+        function send_message(){
+            //日付の設定
+            let minute_val = new Date().getMinutes();
+            //console.log(minute_val);
+            let time_val = "";
+            if(Number(minute_val) < 10){
+                //console.log("10未満");
+                time_val = Number((new Date().getYear())+1900) +"/"+ Number((new Date().getMonth())+1) +"/"+ new Date().getDate() +" "+ new Date().getHours() +":0" + String(new Date().getMinutes());
+                //console.log(time_val);
+            }
+            else{
+                //console.log("10以上");
+                time_val = Number((new Date().getYear())+1900) +"/"+ Number((new Date().getMonth())+1) +"/"+ new Date().getDate() +" "+ new Date().getHours() +":" + new Date().getMinutes();
+                //console.log(time_val);
+            }
+            
+            //オブジェクトに格納
+            const msg = {
+                myid: myid_val,
+                toid: toid_val,
+                time: time_val,
+                text: $("#text").val()
+            }
+
+            //送信メッセージチェック
+            let m_ch = message_check(msg.text);
+            if(m_ch == 1){
+                if(window.confirm("このままおくりますか？ \n きちんとつたわらないかもしれません。 \n おくるばあいはOKをおしてね。")){
+                    const newPostRef = push(dbRef);
+                    set(newPostRef, msg);
+                }
+            }
+            else{
+                const newPostRef = push(dbRef);
+                set(newPostRef, msg);
+            }
+
+            // テキストボックスをクリア
+            $("#text").val("");
+            //$("#text").val(String.fromCharCode(8));
+            return;
+        }
+
+        //送信メッセージの内容チェック
+        function message_check(text){
+            if(text.indexOf("なんで") != -1){
+                return(1);
+            }
+        }
+
+    </script>
+
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

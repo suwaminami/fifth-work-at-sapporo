@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>保育・習い事ナビお問合せフォーム</title>
+<link rel="stylesheet" href="./css/line.css">
+</head>
+<body class="container">
+
+<!-- コンテンツ表示画面 -->
+
+
+    <!-- <div> 名前：<input type="text" id="uname"> </div> -->
+    <div class="head">お問合せフォーム</div>
+    <div id="output" class="outputarea">
+
+      
+    </div>
+    <div class="messagearea">
+        <textarea class="textarea" id="text"></textarea>
+        <!-- <div id="str_now"></div> -->
+        <button id="send" class="send">送信</button>
+  </div>
+  
+
+<!--/ コンテンツ表示画面 -->
+
+
+
+<!-- JQuery -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<!-- JQuery -->
+
+
+<!--** 以下Firebase **-->
+<script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.2/firebase-app.js";
+  import { getDatabase, ref, push, set, onChildAdded, remove, onChildRemoved } from "https://www.gstatic.com/firebasejs/9.6.2/firebase-database.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyDX16PbASEcsa8s59iHsB-OyUyIxjQ5yvc",
+    authDomain: "chat-233f7.firebaseapp.com",
+    projectId: "chat-233f7",
+    storageBucket: "chat-233f7.appspot.com",
+    messagingSenderId: "766412584522",
+    appId: "1:766412584522:web:dadbae37dad563fea498b3"
+  }
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app); // データベースへの接続
+
+  const dbRef = ref(db,"line"); // どのデータベースを参照するか
+  let utdb;//ユーザーテーブル
+  
+
+                //人増やしたときの動作２ テーブル設定
+                const myid_no = IDselect(myid_val);
+                const toid_no = IDselect(toid_val);
+                let tbl_val = "";
+                let db_no = "";
+
+                if (myid_no < toid_no){
+                    tbl_val = "tbl-" + myid_no + toid_no;
+                }
+                else if(myid_no > toid_no){
+                    tbl_val = "tbl-" + toid_no + myid_no;
+                }
+                db_no = "uid-" + myid_no + toid_no + "-" + toid_no + myid_no;
+                
+                const ut = {
+                    myid: myid_val,
+                    toid: toid_val,
+                    tblno: tbl_val
+                }
+
+                //const newPostRef = push(utdb);
+                utdb = ref(db, "user_table/" + db_no);
+                set(utdb, ut);
+
+                //console.log(ut.tblno);
+                dbRef = ref(db, ut.tblno); //chat用データベースを使うか指定
+                table_no = ut.tblno;
+                //Usertableの設定終了
+        
+            
+            
+            //Outputの設定
+            onChildAdded(dbRef, function(data){
+                const msg = data.val();//データ取ってくるときの記載方法
+                const key = data.key;
+
+                console.log(key);
+                
+                //自分のメッセージの場合
+                if(msg.myid == myid_val){
+                    //console.log(myid_val);
+                    let moji_c = 0;
+                    let moji = msg.text;
+                    //console.log(moji);
+                    moji_c = moji.length;
+                    //console.log(moji_c);
+                    let h;
+
+                    if (moji_c > 12){
+                        // 文字が長い場合は左寄せ ＆ 時間を独立させる
+                        //console.log("左寄せ");
+                        h = '<p id="message-time-my-long">';
+                        h += msg.time;
+                        h += '</p><br><p id="my-text-long">';
+                        h += msg.text;
+                        h += '</p>';
+                        h += jibun;
+                    }
+                    else{
+                        // 文字が短い場合は右寄せ
+                        //console.log("右寄せ");
+                        h = '<p id="my-message"><span id="message-time-my">';
+                        h += msg.time;
+                        h += '</span><br><span id="my-text">';
+                        h += msg.text;
+                        h += '</span></p>';
+                        h += jibun;
+                    }
+                    //console.log(h);
+                    $("#output").append(h); //#outputの最後に追加
+                }
+
+                //相手からのメッセージの場合
+                else if(msg.myid == toid_val){
+                    //console.log(toid_val);
+                    let moji_c = 0;
+                    let moji = msg.text;
+                    //console.log(moji);
+                    moji_c = moji.length;
+                    //console.log(moji_c);
+                    let h;
+                    if (moji_c > 12){
+                        // 時間を独立させる
+                        h = '<p id="message-time-to-long">';
+                        h += msg.time;
+                        h += '</p><br>'
+                        h += aite;
+                        h += '<p id="to-text-long">';
+                        h += msg.text;
+                        h += '</p>';
+                    }
+
+                    else{
+                        h = aite;
+                        h += '<p id="to-message"><span id="message-time">';
+                        h += msg.time;
+                        h += '</span><br><span id="to-text">';
+                        h += msg.text;
+                        h += '</span></p>';
+                    }
+
+                    //console.log(h);
+                    $("#output").append(h); //#outputの最後に追加
+                }
+
+                // //一番下までスクロール
+                let el = document.getElementById('change');
+                el.scrollTop = el.scrollHeight;
+
+            });
+
+            onChildRemoved(dbRef, function(data){
+                $("#output").remove();
+            });
+
+        
+        //ラジオボタン終了
+
+
+
+        //全消し
+        $('#output').on('click', function () {
+            console.log(dbRef);
+            console.log(ref(db, table_no));
+            remove(ref(db, table_no));
+        });
+
+
+        //送信
+        $("#send").on("click", function(){
+            // 送信メッセージ作成関数へ
+            send_message();
+        });
+
+        //Enter押したら送信する仕組み
+        $("#text").on("keydown", function(event){
+            //console.log(event);
+
+            //追記したところ
+            //console.log(event.keyCode);
+            if(event.keyCode === 13){
+                // 送信メッセージ作成関数へ
+                send_message();
+            }
+        });
+
+
+//   $("#send").on("click", function(){
+//     const msg = {
+//       // uname: $("#uname").val(),
+//       text: $("#text").val()
+//     }
+//     // let now = new Date()
+//     // let str_now=JSON.stringify((now.getMonth()+1)+'/'+now.getDate()+''+now.getHours()+':'+now.getMinutes());
+//     //     let msg = {
+//     //         time : `${#str_now}`,
+//     //     }
+//     const newPostRef = push(dbRef); // データを一意なもの（ユニークなもの）にするための記述
+//     set(newPostRef, msg) // データを保存
+//     text: $("#text").val('');
+
+ 
+     
+
+//   });
+
+//   onChildAdded(dbRef, function(data){
+//     const msg = data.val();
+//     // { uname: "hoge", text: "fugafuga" }
+//     const key = data.key;
+//     let h = '<div class="balloon4"><p>';
+//         // h += msg.uname;
+//         // h += '<br>';
+//         h += msg.text;
+//         h += '</p></div>';
+//         $("#output").append(h); //#outputの最後に追加
+//   });
+
+  
+
+//    $("#text").on("keydown", function(e){
+//      if (e.keyCode == 13) {   //EnterKey=13
+//        const msg = {
+//         //  uname: $("#uname").val(),
+//          text: $("#text").val()
+//        }
+//        const newPostRef = push(dbRef); //ユニークKEYを生成
+//        set(newPostRef, msg);           //"chat"にユニークKEYをつけてオブジェクトデータを登録
+//      }
+//    });
+  
+</script>
+
+</body>
+</html>
